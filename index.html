@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DBS Access Disparities Dashboard - Canada</title>
     <script src="https://cdn.plot.ly/plotly-2.26.0.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -180,9 +182,205 @@
             height: 400px;
             margin: 30px 0;
         }
+
+        /* Download Menu Styles */
+        .download-menu {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+
+        .download-btn {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+            border: none;
+            padding: 15px 25px;
+            border-radius: 50px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.4);
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .download-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(16, 185, 129, 0.6);
+        }
+
+        .download-dropdown {
+            position: absolute;
+            top: 60px;
+            right: 0;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            min-width: 280px;
+            display: none;
+            overflow: hidden;
+        }
+
+        .download-dropdown.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .download-option {
+            padding: 15px 20px;
+            border-bottom: 1px solid #e5e7eb;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .download-option:last-child {
+            border-bottom: none;
+        }
+
+        .download-option:hover {
+            background: #f9fafb;
+        }
+
+        .download-icon {
+            font-size: 1.5em;
+        }
+
+        .download-text {
+            flex: 1;
+        }
+
+        .download-title {
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 3px;
+        }
+
+        .download-desc {
+            font-size: 0.85em;
+            color: #6b7280;
+        }
+
+        /* Download Progress Overlay */
+        .download-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+        }
+
+        .download-overlay.active {
+            display: flex;
+        }
+
+        .download-progress {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            min-width: 300px;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media print {
+            .download-menu, .view-btn, .download-btn {
+                display: none !important;
+            }
+
+            body {
+                background: white !important;
+            }
+
+            .container {
+                max-width: 100% !important;
+            }
+        }
     </style>
 </head>
 <body>
+    <!-- Download Menu -->
+    <div class="download-menu">
+        <button class="download-btn" id="downloadBtn">
+            <span style="font-size: 1.3em;">⬇️</span>
+            Download
+        </button>
+        <div class="download-dropdown" id="downloadDropdown">
+            <div class="download-option" onclick="downloadDashboardImage()">
+                <div class="download-icon">📸</div>
+                <div class="download-text">
+                    <div class="download-title">Dashboard as Image</div>
+                    <div class="download-desc">Save current view as PNG</div>
+                </div>
+            </div>
+            <div class="download-option" onclick="downloadChartImage()">
+                <div class="download-icon">📊</div>
+                <div class="download-text">
+                    <div class="download-title">Chart as Image</div>
+                    <div class="download-desc">Export travel burden chart</div>
+                </div>
+            </div>
+            <div class="download-option" onclick="downloadAsPDF()">
+                <div class="download-icon">📄</div>
+                <div class="download-text">
+                    <div class="download-title">Full Report (PDF)</div>
+                    <div class="download-desc">Complete dashboard report</div>
+                </div>
+            </div>
+            <div class="download-option" onclick="window.print()">
+                <div class="download-icon">🖨️</div>
+                <div class="download-text">
+                    <div class="download-title">Print Dashboard</div>
+                    <div class="download-desc">Use browser print function</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Download Progress Overlay -->
+    <div class="download-overlay" id="downloadOverlay">
+        <div class="download-progress">
+            <div class="spinner"></div>
+            <h3 style="color: #333; margin-bottom: 10px;">Generating Download...</h3>
+            <p style="color: #666;">This may take a few moments</p>
+        </div>
+    </div>
+
     <div class="container">
         <header>
             <h1>DBS Access Disparities Dashboard</h1>
@@ -384,6 +582,215 @@
         };
 
         Plotly.newPlot('travelBurdenChart', [trace], layout, {responsive: true});
+
+        // Download Menu Toggle
+        const downloadBtn = document.getElementById('downloadBtn');
+        const downloadDropdown = document.getElementById('downloadDropdown');
+        const downloadOverlay = document.getElementById('downloadOverlay');
+
+        downloadBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            downloadDropdown.classList.toggle('active');
+        });
+
+        document.addEventListener('click', () => {
+            downloadDropdown.classList.remove('active');
+        });
+
+        downloadDropdown.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        // Download Functions
+        function showOverlay() {
+            downloadOverlay.classList.add('active');
+        }
+
+        function hideOverlay() {
+            downloadOverlay.classList.remove('active');
+        }
+
+        // Download Dashboard as Image
+        async function downloadDashboardImage() {
+            showOverlay();
+            downloadDropdown.classList.remove('active');
+
+            try {
+                const container = document.querySelector('.container');
+                const canvas = await html2canvas(container, {
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#ffffff',
+                    logging: false
+                });
+
+                const link = document.createElement('a');
+                link.download = `DBS_Dashboard_${new Date().toISOString().split('T')[0]}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+
+                hideOverlay();
+            } catch (error) {
+                console.error('Download failed:', error);
+                alert('Download failed. Please try again or use the Print option.');
+                hideOverlay();
+            }
+        }
+
+        // Download Chart as Image
+        function downloadChartImage() {
+            downloadDropdown.classList.remove('active');
+
+            try {
+                Plotly.downloadImage('travelBurdenChart', {
+                    format: 'png',
+                    width: 1200,
+                    height: 600,
+                    filename: `Travel_Burden_Chart_${new Date().toISOString().split('T')[0]}`
+                });
+            } catch (error) {
+                console.error('Chart download failed:', error);
+                alert('Chart download failed. Please try using the screenshot option.');
+            }
+        }
+
+        // Download as PDF
+        async function downloadAsPDF() {
+            showOverlay();
+            downloadDropdown.classList.remove('active');
+
+            try {
+                const { jsPDF } = window.jspdf;
+                const pdf = new jsPDF('p', 'mm', 'a4');
+
+                // Page dimensions
+                const pageWidth = pdf.internal.pageSize.getWidth();
+                const pageHeight = pdf.internal.pageSize.getHeight();
+                const margin = 15;
+                const contentWidth = pageWidth - (2 * margin);
+
+                // Title
+                pdf.setFontSize(20);
+                pdf.setTextColor(102, 126, 234);
+                pdf.text('DBS Access Disparities Dashboard', margin, 20);
+
+                pdf.setFontSize(12);
+                pdf.setTextColor(100, 100, 100);
+                pdf.text('Geographic Analysis of Deep Brain Stimulation Access Across Canada', margin, 28);
+
+                // Date
+                pdf.setFontSize(10);
+                pdf.setTextColor(150, 150, 150);
+                pdf.text(`Generated: ${new Date().toLocaleDateString()}`, margin, 35);
+
+                // Stats Grid
+                let yPos = 45;
+                pdf.setFontSize(14);
+                pdf.setTextColor(50, 50, 50);
+                pdf.text('Executive Summary', margin, yPos);
+
+                yPos += 10;
+                pdf.setFontSize(10);
+                pdf.setTextColor(100, 100, 100);
+
+                const stats = [
+                    'Total FSAs Analyzed: 511',
+                    'DBS Centers: 11',
+                    'Mean Distance: 236 km',
+                    'Critical Access FSAs: 33 (>500km)'
+                ];
+
+                stats.forEach(stat => {
+                    pdf.text(`• ${stat}`, margin + 5, yPos);
+                    yPos += 6;
+                });
+
+                // Key Finding
+                yPos += 10;
+                pdf.setFontSize(12);
+                pdf.setTextColor(229, 62, 62);
+                pdf.text('Key Finding: Geographic Disparity Crisis', margin, yPos);
+
+                yPos += 8;
+                pdf.setFontSize(10);
+                pdf.setTextColor(80, 80, 80);
+                const keyText = '33 FSAs (6.5% of Canada) face critical access barriers with distances exceeding 500km to the nearest DBS center. Arctic and remote communities experience distances up to 4,740 km.';
+                const splitText = pdf.splitTextToSize(keyText, contentWidth);
+                pdf.text(splitText, margin, yPos);
+
+                yPos += splitText.length * 6 + 15;
+
+                // Capture Chart
+                try {
+                    const chartDiv = document.getElementById('travelBurdenChart');
+                    const chartCanvas = await html2canvas(chartDiv, {
+                        scale: 2,
+                        backgroundColor: '#ffffff'
+                    });
+
+                    const chartImgData = chartCanvas.toDataURL('image/png');
+                    const chartHeight = (chartCanvas.height * contentWidth) / chartCanvas.width;
+
+                    if (yPos + chartHeight > pageHeight - margin) {
+                        pdf.addPage();
+                        yPos = margin;
+                    }
+
+                    pdf.addImage(chartImgData, 'PNG', margin, yPos, contentWidth, chartHeight);
+                    yPos += chartHeight + 15;
+                } catch (e) {
+                    console.error('Chart capture failed:', e);
+                }
+
+                // Add new page for maps list
+                pdf.addPage();
+                yPos = margin;
+
+                pdf.setFontSize(14);
+                pdf.setTextColor(50, 50, 50);
+                pdf.text('Available Interactive Visualizations', margin, yPos);
+
+                yPos += 10;
+                pdf.setFontSize(10);
+                pdf.setTextColor(100, 100, 100);
+
+                const maps = [
+                    'Travel Burden Heatmap - Distance-based visualization',
+                    'Vulnerability Index - Socioeconomic + distance analysis',
+                    'Indigenous Access Crisis - Disproportionate barriers',
+                    'Multi-Barrier Service Gaps - Multiple simultaneous barriers',
+                    'Patient Flow Lines - Flow patterns to DBS centers',
+                    'Comprehensive Dashboard - Complete tabbed interface',
+                    'Multi-Factor Analysis - Interactive filters and statistics',
+                    'Distance Map Explorer - Detailed distance visualization'
+                ];
+
+                maps.forEach(map => {
+                    if (yPos > pageHeight - margin - 10) {
+                        pdf.addPage();
+                        yPos = margin;
+                    }
+                    pdf.text(`• ${map}`, margin + 5, yPos);
+                    yPos += 7;
+                });
+
+                // Footer
+                yPos = pageHeight - 20;
+                pdf.setFontSize(8);
+                pdf.setTextColor(150, 150, 150);
+                pdf.text('Data validated with 100% integrity | 21 manual coordinate overrides for Arctic/remote regions', margin, yPos);
+                pdf.text('Source: Statistics Canada, Google Maps API | Repository: github.com/ramihatou97/dbs-dashboard', margin, yPos + 5);
+
+                // Save PDF
+                pdf.save(`DBS_Dashboard_Report_${new Date().toISOString().split('T')[0]}.pdf`);
+
+                hideOverlay();
+            } catch (error) {
+                console.error('PDF generation failed:', error);
+                alert('PDF generation failed. Please try using the Print option (Ctrl/Cmd + P) and save as PDF.');
+                hideOverlay();
+            }
+        }
     </script>
 </body>
 </html>
