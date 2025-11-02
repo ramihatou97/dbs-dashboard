@@ -1,0 +1,879 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DBS Access Disparities - Comprehensive Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-red: #dc2626;
+            --primary-dark: #7c2d12;
+            --secondary-red: #b91c1c;
+            --light-red: #fef2f2;
+            --lighter-red: #fee2e2;
+            --accent-red: #fca5a5;
+            --gray-50: #f9fafb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-400: #9ca3af;
+            --gray-500: #6b7280;
+            --gray-600: #4b5563;
+            --gray-700: #374151;
+            --gray-800: #1f2937;
+            --gray-900: #111827;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(to bottom right, #f8f9fa 0%, #e9ecef 100%);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Enhanced Header */
+        .header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-red) 50%, var(--secondary-red) 100%);
+            color: white;
+            padding: 28px 40px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M 20 0 L 0 0 0 20" fill="none" stroke="rgba(255,255,255,0.05)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            opacity: 0.3;
+        }
+
+        .header-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            opacity: 0.95;
+            font-weight: 500;
+            line-height: 1.5;
+        }
+
+        .header .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.25);
+            backdrop-filter: blur(10px);
+            padding: 6px 14px;
+            border-radius: 16px;
+            font-size: 12px;
+            font-weight: 700;
+            margin-left: 12px;
+            margin-top: 8px;
+            border: 1px solid rgba(255,255,255,0.3);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Enhanced Navigation Tabs */
+        .nav-tabs {
+            background: white;
+            display: flex;
+            padding: 0 40px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+            overflow-x: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-red) var(--gray-100);
+            position: relative;
+        }
+
+        .nav-tabs::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .nav-tabs::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        .nav-tabs::-webkit-scrollbar-thumb {
+            background: var(--accent-red);
+            border-radius: 2px;
+        }
+
+        .nav-tab {
+            padding: 18px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            white-space: nowrap;
+            font-weight: 600;
+            color: var(--gray-600);
+            font-size: 14px;
+            position: relative;
+        }
+
+        .nav-tab::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--primary-red);
+            transform: scaleX(0);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .nav-tab:hover {
+            color: var(--primary-red);
+            background: var(--light-red);
+        }
+
+        .nav-tab.active {
+            color: var(--primary-red);
+            background: var(--light-red);
+        }
+
+        .nav-tab.active::after {
+            transform: scaleX(1);
+        }
+
+        /* Content Area */
+        .content {
+            flex: 1;
+            padding: 32px 40px;
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: var(--accent-red) var(--gray-100);
+        }
+
+        .content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .content::-webkit-scrollbar-track {
+            background: var(--gray-100);
+        }
+
+        .content::-webkit-scrollbar-thumb {
+            background: var(--accent-red);
+            border-radius: 4px;
+        }
+
+        .map-container, .viz-container {
+            display: none;
+            height: calc(100vh - 260px);
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+            overflow: hidden;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .map-container.active, .viz-container.active {
+            display: block;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .image-viz {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: white;
+            padding: 32px;
+        }
+
+        /* Enhanced Overview Section */
+        .overview-section {
+            display: none;
+            animation: fadeIn 0.4s ease-out;
+        }
+
+        .overview-section.active {
+            display: block;
+        }
+
+        .overview-section h2 {
+            color: var(--gray-900);
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid var(--gray-200);
+            position: relative;
+        }
+
+        .overview-section h2::before {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 80px;
+            height: 3px;
+            background: var(--primary-red);
+        }
+
+        .intro-text {
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            color: var(--gray-700);
+            line-height: 1.8;
+            margin-bottom: 32px;
+            font-size: 15px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            border-left: 4px solid var(--primary-red);
+        }
+
+        .intro-text strong {
+            color: var(--primary-red);
+            font-weight: 700;
+        }
+
+        /* Enhanced Key Stats */
+        .key-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+
+        .stat-box {
+            background: linear-gradient(135deg, white 0%, var(--light-red) 100%);
+            padding: 28px;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid var(--accent-red);
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, transparent 0%, rgba(220, 38, 38, 0.05) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .stat-box:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 24px rgba(220, 38, 38, 0.2);
+            border-color: var(--primary-red);
+        }
+
+        .stat-box:hover::before {
+            opacity: 1;
+        }
+
+        .stat-box .icon {
+            font-size: 32px;
+            margin-bottom: 12px;
+            opacity: 0.8;
+        }
+
+        .stat-box .number {
+            font-size: 36px;
+            font-weight: 800;
+            color: var(--primary-red);
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .stat-box .label {
+            color: var(--gray-600);
+            font-size: 14px;
+            font-weight: 600;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Enhanced Map Cards */
+        .map-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .map-card {
+            border: 2px solid var(--gray-200);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .map-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-red), var(--secondary-red));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .map-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .map-card:hover {
+            border-color: var(--primary-red);
+            box-shadow: 0 12px 32px rgba(220, 38, 38, 0.18);
+            transform: translateY(-6px);
+        }
+
+        .map-card.new {
+            background: linear-gradient(135deg, var(--light-red) 0%, white 100%);
+            border-color: var(--accent-red);
+        }
+
+        .map-card h3 {
+            color: var(--primary-red);
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .map-card p {
+            color: var(--gray-600);
+            line-height: 1.7;
+            margin-bottom: 16px;
+            font-size: 14px;
+        }
+
+        .map-card .highlights {
+            background: var(--light-red);
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: var(--gray-700);
+            border-left: 3px solid var(--primary-red);
+            line-height: 1.6;
+        }
+
+        .map-card .highlights strong {
+            color: var(--primary-red);
+            font-weight: 700;
+        }
+
+        .new-badge {
+            display: inline-block;
+            background: var(--primary-red);
+            color: white;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-left: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
+        }
+
+        /* Enhanced Download Section */
+        .download-section {
+            margin-top: 40px;
+            padding: 32px;
+            background: white;
+            border-radius: 16px;
+            border: 2px solid var(--gray-200);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .download-section::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 6px;
+            height: 100%;
+            background: linear-gradient(to bottom, var(--primary-red), var(--secondary-red));
+        }
+
+        .download-section h3 {
+            color: var(--gray-900);
+            margin-bottom: 12px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .download-section p {
+            color: var(--gray-600);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .download-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .download-btn {
+            padding: 14px 28px;
+            background: linear-gradient(135deg, var(--primary-red), var(--secondary-red));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            text-decoration: none;
+            display: inline-block;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+        }
+
+        .download-btn:hover {
+            background: linear-gradient(135deg, var(--secondary-red), var(--primary-dark));
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(220, 38, 38, 0.4);
+        }
+
+        .download-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Footer Badge */
+        .footer-badge {
+            text-align: center;
+            padding: 20px;
+            color: var(--gray-500);
+            font-size: 13px;
+            background: white;
+            border-top: 2px solid var(--gray-200);
+        }
+
+        .footer-badge strong {
+            color: var(--primary-red);
+        }
+
+        /* Loading Animation */
+        .loading-indicator {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            display: none;
+        }
+
+        .loading-indicator.show {
+            display: block;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--gray-200);
+            border-top-color: var(--primary-red);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            .header {
+                padding: 20px 24px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .header .subtitle {
+                font-size: 14px;
+            }
+
+            .nav-tabs {
+                padding: 0 24px;
+            }
+
+            .content {
+                padding: 20px 24px;
+            }
+
+            .key-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .map-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .download-buttons {
+                flex-direction: column;
+            }
+
+            .download-btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <div class="header-content">
+            <h1>🗺️ DBS Access Disparities Dashboard</h1>
+            <div class="subtitle">
+                Comprehensive Geographic & Statistical Analysis of Deep Brain Stimulation Therapy Access Across Canada
+                <span class="badge">8 Interactive Visualizations</span>
+                <span class="badge">Enhanced Analytics</span>
+                <span class="badge">Publication Ready</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="nav-tabs">
+        <div class="nav-tab active" data-tab="overview">📊 Executive Overview</div>
+        <div class="nav-tab" data-tab="map1">🗺️ Travel Burden</div>
+        <div class="nav-tab" data-tab="map2">🎯 Vulnerability Index</div>
+        <div class="nav-tab" data-tab="map3">🏔️ Indigenous Access</div>
+        <div class="nav-tab" data-tab="map4">⚠️ Service Gaps</div>
+        <div class="nav-tab" data-tab="map5">🔀 Patient Flow <span class="new-badge">Enhanced</span></div>
+        <div class="nav-tab" data-tab="sankey">📈 Sankey Diagram <span class="new-badge">New</span></div>
+        <div class="nav-tab" data-tab="vulnerability-matrix">📊 Matrix View <span class="new-badge">New</span></div>
+        <div class="nav-tab" data-tab="disparities">📉 Overview Charts <span class="new-badge">New</span></div>
+    </div>
+
+    <!-- Content Area -->
+    <div class="content">
+        <!-- Overview Section -->
+        <div class="overview-section active" id="overview">
+            <h2>Executive Summary</h2>
+
+            <div class="intro-text">
+                This comprehensive dashboard presents <strong>eight specialized interactive visualizations</strong> analyzing
+                geographic and socioeconomic disparities in access to Deep Brain Stimulation (DBS) therapy across Canada.
+                The analysis encompasses <strong>512 Forward Sortation Areas (FSAs)</strong> and <strong>11 DBS treatment centers</strong>,
+                revealing significant barriers to equitable healthcare access. Enhanced with <strong>dramatic patient flow visualizations</strong>,
+                directional arrows, Sankey diagrams, and multi-dimensional vulnerability assessments.
+            </div>
+
+            <div class="key-stats">
+                <div class="stat-box">
+                    <div class="icon">📍</div>
+                    <div class="number">512</div>
+                    <div class="label">FSAs Analyzed</div>
+                </div>
+                <div class="stat-box">
+                    <div class="icon">🏥</div>
+                    <div class="number">11</div>
+                    <div class="label">DBS Centers</div>
+                </div>
+                <div class="stat-box">
+                    <div class="icon">🛣️</div>
+                    <div class="number">183.5 km</div>
+                    <div class="label">Average Distance</div>
+                </div>
+                <div class="stat-box">
+                    <div class="icon">📊</div>
+                    <div class="number">56.6%</div>
+                    <div class="label">Toronto Western Share</div>
+                </div>
+                <div class="stat-box">
+                    <div class="icon">⚠️</div>
+                    <div class="number">1.93×</div>
+                    <div class="label">Indigenous Travel Multiplier</div>
+                </div>
+            </div>
+
+            <h2 style="margin-top: 40px;">Interactive Visualizations</h2>
+
+            <div class="map-cards">
+                <div class="map-card" onclick="switchTab('map1')">
+                    <h3>🗺️ Map 1: Travel Burden Heatmap</h3>
+                    <p>
+                        Five-tier geographic visualization revealing travel distance disparities from excellent access
+                        zones (&lt;50km in green) to critical access areas (&gt;500km in red). Interactive controls
+                        allow filtering by distance thresholds.
+                    </p>
+                    <div class="highlights">
+                        <strong>Critical Finding:</strong> 96 FSAs (18.8%) require &gt;200km travel. 31 FSAs in extreme
+                        zones (&gt;500km) face severe access barriers.
+                    </div>
+                </div>
+
+                <div class="map-card" onclick="switchTab('map2')">
+                    <h3>🎯 Map 2: Vulnerability Index</h3>
+                    <p>
+                        Composite multi-factor analysis combining geographic distance (50% weight), median household
+                        income (30%), and socioeconomic inequality (20%) to identify compound disadvantage zones.
+                    </p>
+                    <div class="highlights">
+                        <strong>Critical Finding:</strong> 27 FSAs face multiple barriers (&gt;200km + income &lt;$70k).
+                        4 FSAs show extreme vulnerability scores (&gt;70).
+                    </div>
+                </div>
+
+                <div class="map-card" onclick="switchTab('map3')">
+                    <h3>🏔️ Map 3: Indigenous Access Crisis</h3>
+                    <p>
+                        Targeted analysis highlighting severe disparities for communities with &gt;5% Indigenous population.
+                        Color-coded overlays reveal systematic access inequities.
+                    </p>
+                    <div class="highlights">
+                        <strong>Critical Finding:</strong> Indigenous communities travel <strong>1.93× farther</strong>
+                        (354.4km average vs 183.5km overall baseline).
+                    </div>
+                </div>
+
+                <div class="map-card" onclick="switchTab('map4')">
+                    <h3>⚠️ Map 4: Multi-Barrier Service Gaps</h3>
+                    <p>
+                        Advanced identification of FSAs experiencing multiple simultaneous barriers: distance, low income,
+                        inequality, Indigenous population, and visible minority status.
+                    </p>
+                    <div class="highlights">
+                        <strong>Critical Finding:</strong> 5 FSAs face 3+ simultaneous barriers. 104 FSAs experience
+                        compound disadvantage (2 barriers).
+                    </div>
+                </div>
+
+                <div class="map-card new" onclick="switchTab('map5')">
+                    <h3>🔀 Map 5: Enhanced Patient Flow Analysis <span class="new-badge">Enhanced</span></h3>
+                    <p>
+                        <strong>DRAMATICALLY ENHANCED!</strong> Animated patient flow visualization with directional arrows,
+                        2.5× thicker lines, 60% opacity, and distance-based color coding. All 512 flows displayed with
+                        animation for maximum impact.
+                    </p>
+                    <div class="highlights">
+                        <strong>Enhancement:</strong> Directional arrows (FSA → Center), interactive hover tooltips,
+                        dramatic 5-tier color scheme, fully visible flows.
+                    </div>
+                </div>
+
+                <div class="map-card new" onclick="switchTab('sankey')">
+                    <h3>🔀 Interactive Sankey Flow Diagram <span class="new-badge">New</span></h3>
+                    <p>
+                        Fully interactive Plotly Sankey visualization showing patient flows from provinces/regions to
+                        DBS centers. Hover for detailed statistics, explore relationships dynamically.
+                    </p>
+                    <div class="highlights">
+                        <strong>Insight:</strong> Visual representation of severe market concentration and cross-provincial
+                        patient flows revealing systemic imbalances.
+                    </div>
+                </div>
+
+                <div class="map-card new" onclick="switchTab('vulnerability-matrix')">
+                    <h3>📊 Vulnerability Matrix Analysis <span class="new-badge">New</span></h3>
+                    <p>
+                        Static comprehensive matrix visualization displaying relationships between multiple vulnerability
+                        factors and geographic access barriers across all FSAs.
+                    </p>
+                    <div class="highlights">
+                        <strong>Analysis:</strong> Multi-dimensional vulnerability assessment enabling identification of
+                        compound risk patterns.
+                    </div>
+                </div>
+
+                <div class="map-card new" onclick="switchTab('disparities')">
+                    <h3>📈 Comprehensive Disparities Overview <span class="new-badge">New</span></h3>
+                    <p>
+                        Publication-ready static overview presenting key disparity metrics, comparative statistics, and
+                        trend analyses across all measured dimensions in a single comprehensive view.
+                    </p>
+                    <div class="highlights">
+                        <strong>Comprehensive:</strong> All-in-one executive snapshot of major findings, disparities,
+                        and policy-relevant insights.
+                    </div>
+                </div>
+            </div>
+
+            <div class="download-section">
+                <h3>📥 Export & Download Options</h3>
+                <p>
+                    All visualizations are available as standalone interactive HTML files. Static visualizations
+                    (PNG format) can be right-click saved for publications and presentations.
+                </p>
+                <div class="download-buttons">
+                    <a href="map1_travel_burden_heatmap.html" class="download-btn" target="_blank">📥 Map 1: Travel Burden</a>
+                    <a href="map2_vulnerability_index.html" class="download-btn" target="_blank">📥 Map 2: Vulnerability</a>
+                    <a href="map3_indigenous_access_crisis.html" class="download-btn" target="_blank">📥 Map 3: Indigenous</a>
+                    <a href="map4_service_gaps_multibarrier.html" class="download-btn" target="_blank">📥 Map 4: Service Gaps</a>
+                    <a href="map5_patient_flow_lines.html" class="download-btn" target="_blank">📥 Map 5: Flow (Enhanced)</a>
+                    <a href="patient_flow_sankey.html" class="download-btn" target="_blank">📥 Sankey Diagram</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Map 1 Container -->
+        <div class="map-container" id="map1">
+            <iframe src="map1_travel_burden_heatmap.html"></iframe>
+        </div>
+
+        <!-- Map 2 Container -->
+        <div class="map-container" id="map2">
+            <iframe src="map2_vulnerability_index.html"></iframe>
+        </div>
+
+        <!-- Map 3 Container -->
+        <div class="map-container" id="map3">
+            <iframe src="map3_indigenous_access_crisis.html"></iframe>
+        </div>
+
+        <!-- Map 4 Container -->
+        <div class="map-container" id="map4">
+            <iframe src="map4_service_gaps_multibarrier.html"></iframe>
+        </div>
+
+        <!-- Map 5 Container (ENHANCED) -->
+        <div class="map-container" id="map5">
+            <iframe src="map5_patient_flow_lines.html"></iframe>
+        </div>
+
+        <!-- Sankey Diagram Container -->
+        <div class="viz-container" id="sankey">
+            <iframe src="patient_flow_sankey.html"></iframe>
+        </div>
+
+        <!-- Vulnerability Matrix Container -->
+        <div class="viz-container" id="vulnerability-matrix">
+            <img src="vulnerability_matrix.png" alt="Vulnerability Matrix" class="image-viz">
+        </div>
+
+        <!-- Disparities Overview Container -->
+        <div class="viz-container" id="disparities">
+            <img src="dbs_disparities_overview.png" alt="DBS Disparities Overview" class="image-viz">
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer-badge">
+        <strong>DBS Access Disparities Dashboard</strong> | 512 FSAs | 11 Centers | 8 Interactive Visualizations |
+        Enhanced with Directional Flow Analysis | Use ← → arrow keys for navigation
+    </div>
+
+    <script>
+        // Tab switching functionality with smooth transitions
+        function switchTab(tabId) {
+            // Remove active class from all tabs and containers
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.map-container, .viz-container, .overview-section').forEach(container => {
+                container.classList.remove('active');
+            });
+
+            // Add active class to selected tab and container
+            const selectedTab = document.querySelector(`[data-tab="${tabId}"]`);
+            const selectedContainer = document.getElementById(tabId);
+
+            if (selectedTab && selectedContainer) {
+                selectedTab.classList.add('active');
+                selectedContainer.classList.add('active');
+
+                // Scroll tab into view if needed
+                selectedTab.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+
+                // Scroll content to top
+                document.querySelector('.content').scrollTop = 0;
+            }
+        }
+
+        // Add click handlers to navigation tabs
+        document.querySelectorAll('.nav-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
+                switchTab(tabId);
+            });
+        });
+
+        // Enhanced keyboard navigation (arrow keys)
+        document.addEventListener('keydown', function(e) {
+            const tabs = Array.from(document.querySelectorAll('.nav-tab'));
+            const activeIndex = tabs.findIndex(tab => tab.classList.contains('active'));
+
+            if (e.key === 'ArrowRight' && activeIndex < tabs.length - 1) {
+                e.preventDefault();
+                tabs[activeIndex + 1].click();
+            } else if (e.key === 'ArrowLeft' && activeIndex > 0) {
+                e.preventDefault();
+                tabs[activeIndex - 1].click();
+            } else if (e.key === 'Home') {
+                e.preventDefault();
+                tabs[0].click();
+            } else if (e.key === 'End') {
+                e.preventDefault();
+                tabs[tabs.length - 1].click();
+            }
+        });
+
+        // Add number key shortcuts (1-9)
+        document.addEventListener('keydown', function(e) {
+            const num = parseInt(e.key);
+            if (num >= 1 && num <= 9) {
+                const tabs = Array.from(document.querySelectorAll('.nav-tab'));
+                if (tabs[num - 1]) {
+                    e.preventDefault();
+                    tabs[num - 1].click();
+                }
+            }
+        });
+
+        // Preload all iframes for faster switching (optional performance enhancement)
+        window.addEventListener('load', function() {
+            console.log('Dashboard loaded successfully');
+            // Log for analytics/debugging
+            console.log('Available tabs:', document.querySelectorAll('.nav-tab').length);
+        });
+    </script>
+</body>
+</html>
