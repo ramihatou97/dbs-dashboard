@@ -5,7 +5,7 @@
     <title>DBS Access - Distance Analysis</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBH_yuU7_TfAJmuf_h04UsmKKhC0XPWerA&libraries=visualization&callback=initMap"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBH_yuU7_TfAJmuf_h04UsmKKhC0XPWerA&libraries=visualization"></script>
     <style>
         * {
             margin: 0;
@@ -329,7 +329,7 @@
         }
 
         // Initialize map when page loads
-        // window.onload = initMap; // Removed: Using callback parameter instead
+        window.onload = initMap;
     </script>
 </body>
 </html>
