@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive analysis of Deep Brain Stimulation (DBS) access disparities across Canada. Comprehensive visualization of 920 patient records, 511 geographic areas, and socioeconomic barriers to healthcare access.">
+    <meta name="keywords" content="DBS, Deep Brain Stimulation, healthcare access, Canada, health disparities, medical geography, patient access">
+    <meta name="author" content="DBS Access Research Team">
+    <meta name="theme-color" content="#4a5568">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DBS Access Disparities Dashboard - Canada">
+    <meta property="og:description" content="Interactive analysis of Deep Brain Stimulation access across Canada. 920 patient records • 511 geographic areas • 10 treatment centers">
+    <meta property="og:url" content="https://ramihatou97.github.io/dbs-dashboard/">
+    
     <title>DBS Access Disparities Dashboard - Canada</title>
     <style>
         * {
@@ -280,230 +291,511 @@
             width: 14px;
             height: 14px;
         }
+
+        /* Loading Indicator Styles */
+        .loading-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            color: #64748b;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Error State Styles */
+        .error-indicator {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            color: #ef4444;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-indicator.show {
+            display: flex;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .error-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .error-details {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Accessibility improvements */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Focus visible for keyboard navigation */
+        .nav-tab:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .download-btn:focus-visible,
+        .map-download-btn:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+
+            .nav-tabs,
+            .download-btn-container,
+            .skip-link {
+                display: none;
+            }
+
+            .map-container {
+                display: block !important;
+                page-break-after: always;
+            }
+
+            .map-frame {
+                border: 1px solid #ccc;
+            }
+        }
+
+        /* Screen reader only content */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .nav-tab {
+                border: 2px solid currentColor;
+            }
+
+            .nav-tab.active {
+                background: #000;
+                color: #fff;
+            }
+        }
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="container">
-        <header>
+        <header role="banner">
             <h1>DBS Access Disparities Dashboard</h1>
             <p>Interactive Analysis of Deep Brain Stimulation Access Across Canada</p>
             <p style="font-size: 0.85em; margin-top: 16px; opacity: 0.75;">920 Patient Records • 511 Geographic Areas • 10 Treatment Centers • 13 Visualizations</p>
         </header>
 
-        <div class="info-banner">
+        <div class="info-banner" role="complementary" aria-label="Dataset overview">
             <h3>Dataset Overview</h3>
             <p>Comprehensive analysis of geographic and socioeconomic barriers to DBS surgery access in Canada. Based on 920 verified patient records across 511 FSAs with data from Statistics Canada 2021 Census and Google Distance Matrix API. Interactive maps include distance metrics, household income, inequality indices, and demographic data.</p>
         </div>
 
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showMap('overview')">Executive Overview</button>
-            <button class="nav-tab" onclick="showMap('map1')">Travel Burden</button>
-            <button class="nav-tab" onclick="showMap('map2')">Vulnerability Index</button>
-            <button class="nav-tab" onclick="showMap('incomeParadox')">Income Paradox</button>
-            <button class="nav-tab" onclick="showMap('atlanticCrisis')">Atlantic Crisis</button>
-            <button class="nav-tab" onclick="showMap('map3')">Indigenous Access</button>
-            <button class="nav-tab" onclick="showMap('map4')">Service Gaps</button>
-            <button class="nav-tab" onclick="showMap('map5')">Optimal Flows</button>
-            <button class="nav-tab" onclick="showMap('trueFlows')">TRUE Patient Flows (920)</button>
-            <button class="nav-tab" onclick="showMap('systemFlow')">System Flow</button>
-            <button class="nav-tab" onclick="showMap('hiddenCrisis')">Hidden Crisis</button>
-            <button class="nav-tab" onclick="showMap('distanceMap')">Distance Map</button>
-            <button class="nav-tab" onclick="showMap('combinedAnalysis')">Combined Analysis</button>
-        </div>
+        <nav class="nav-tabs" role="tablist" aria-label="Dashboard visualizations">
+            <button class="nav-tab active" onclick="showMap('overview')" role="tab" aria-selected="true" aria-controls="overview" id="tab-overview">Executive Overview</button>
+            <button class="nav-tab" onclick="showMap('map1')" role="tab" aria-selected="false" aria-controls="map1" id="tab-map1">Travel Burden</button>
+            <button class="nav-tab" onclick="showMap('map2')" role="tab" aria-selected="false" aria-controls="map2" id="tab-map2">Vulnerability Index</button>
+            <button class="nav-tab" onclick="showMap('incomeParadox')" role="tab" aria-selected="false" aria-controls="incomeParadox" id="tab-incomeParadox">Income Paradox</button>
+            <button class="nav-tab" onclick="showMap('atlanticCrisis')" role="tab" aria-selected="false" aria-controls="atlanticCrisis" id="tab-atlanticCrisis">Atlantic Crisis</button>
+            <button class="nav-tab" onclick="showMap('map3')" role="tab" aria-selected="false" aria-controls="map3" id="tab-map3">Indigenous Access</button>
+            <button class="nav-tab" onclick="showMap('map4')" role="tab" aria-selected="false" aria-controls="map4" id="tab-map4">Service Gaps</button>
+            <button class="nav-tab" onclick="showMap('map5')" role="tab" aria-selected="false" aria-controls="map5" id="tab-map5">Optimal Flows</button>
+            <button class="nav-tab" onclick="showMap('trueFlows')" role="tab" aria-selected="false" aria-controls="trueFlows" id="tab-trueFlows">TRUE Patient Flows (920)</button>
+            <button class="nav-tab" onclick="showMap('systemFlow')" role="tab" aria-selected="false" aria-controls="systemFlow" id="tab-systemFlow">System Flow</button>
+            <button class="nav-tab" onclick="showMap('hiddenCrisis')" role="tab" aria-selected="false" aria-controls="hiddenCrisis" id="tab-hiddenCrisis">Hidden Crisis</button>
+            <button class="nav-tab" onclick="showMap('distanceMap')" role="tab" aria-selected="false" aria-controls="distanceMap" id="tab-distanceMap">Distance Map</button>
+            <button class="nav-tab" onclick="showMap('combinedAnalysis')" role="tab" aria-selected="false" aria-controls="combinedAnalysis" id="tab-combinedAnalysis">Combined Analysis</button>
+        </nav>
 
-        <div id="overview" class="map-container active">
+        <main id="main-content" role="main">
+
+        <div id="overview" class="map-container active" role="tabpanel" aria-labelledby="tab-overview">
             <h2>Executive Overview</h2>
             <p>Six-panel provincial utilization summary showing patient volumes, travel burden, economic profiles, access challenges, interprovincial flows, and Atlantic Canada crisis. Based on 920 verified patient records.</p>
             <div class="download-btn-container">
-                <a href="downloads/overview_provincial.png" download="DBS_Executive_Overview.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/overview_provincial.png" download="DBS_Executive_Overview.png" class="map-download-btn" aria-label="Download Executive Overview as high-resolution image">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="overview_wrapper.html"></iframe>
+            <div class="loading-indicator" id="loading-overview" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Executive Overview loads</span>
+            </div>
+            <div class="error-indicator" id="error-overview" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="overview_wrapper.html" title="Executive Overview - Six-panel provincial utilization summary" loading="lazy" onload="hideLoading('overview')" onerror="showError('overview')"></iframe>
         </div>
 
-        <div id="map1" class="map-container">
+        <div id="map1" class="map-container" role="tabpanel" aria-labelledby="tab-map1">
             <h2>Travel Burden Heatmap</h2>
             <p>Actual patient travel distances based on 920 real DBS journeys. Critical FSAs (red) show patients traveling >500km average. Mean distance: 212.1 km vs 201.0 km optimal.</p>
             <div class="download-btn-container">
-                <a href="downloads/travel_burden_heatmap.png" download="DBS_Travel_Burden_Heatmap.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/travel_burden_heatmap.png" download="DBS_Travel_Burden_Heatmap.png" class="map-download-btn" aria-label="Download Travel Burden Heatmap as high-resolution image">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map1_travel_burden_heatmap.html"></iframe>
+            <div class="loading-indicator" id="loading-map1" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Travel Burden Heatmap loads</span>
+            </div>
+            <div class="error-indicator" id="error-map1" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map1_travel_burden_heatmap.html" title="Travel Burden Heatmap - Patient travel distances" loading="lazy" onload="hideLoading('map1')" onerror="showError('map1')"></iframe>
         </div>
 
-        <div id="map2" class="map-container">
+        <div id="map2" class="map-container" role="tabpanel" aria-labelledby="tab-map2">
             <h2>Vulnerability Index</h2>
             <p>Combines actual patient travel distances with socioeconomic factors (income, employment, housing) to identify high-vulnerability regions requiring targeted intervention.</p>
             <div class="download-btn-container">
-                <a href="downloads/vulnerability_index.png" download="DBS_Vulnerability_Index.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/vulnerability_index.png" download="DBS_Vulnerability_Index.png" class="map-download-btn" aria-label="Download Vulnerability Index as high-resolution image">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map2_vulnerability_index.html"></iframe>
+            <div class="loading-indicator" id="loading-map2" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Vulnerability Index loads</span>
+            </div>
+            <div class="error-indicator" id="error-map2" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map2_vulnerability_index.html" title="Vulnerability Index - Socioeconomic analysis" loading="lazy" onload="hideLoading('map2')" onerror="showError('map2')"></iframe>
         </div>
 
-        <div id="incomeParadox" class="map-container">
+        <div id="incomeParadox" class="map-container" role="tabpanel" aria-labelledby="tab-incomeParadox">
             <h2>Income Paradox</h2>
             <p>Distant patients have $16,000 lower median income than local patients ($78k vs $94k), revealing severe selection bias. Statistical validation: Spearman ρ=-0.1878 (p<0.001). Suggests only the most determined low-income patients overcome combined distance and cost barriers.</p>
             <div class="download-btn-container">
-                <a href="downloads/income_paradox.png" download="DBS_Income_Paradox.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/income_paradox.png" download="DBS_Income_Paradox.png" class="map-download-btn" aria-label="Download Income Paradox as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map_income_paradox.html"></iframe>
+            <div class="loading-indicator" id="loading-incomeParadox" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Income Paradox loads</span>
+            </div>
+            <div class="error-indicator" id="error-incomeParadox" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map_income_paradox.html" title="Income Paradox visualization" loading="lazy" onload="hideLoading('incomeParadox')" onerror="showError('incomeParadox')"></iframe>
         </div>
 
-        <div id="atlanticCrisis" class="map-container">
+        <div id="atlanticCrisis" class="map-container" role="tabpanel" aria-labelledby="tab-atlanticCrisis">
             <h2>Atlantic Crisis</h2>
             <p>Complete regional access failure: 100% of Atlantic Canada DBS patients must travel >200km. Average distances: NL 2,924km, PEI 1,506km, NB 430km, NS 324km. Zero DBS centers serve 2.5 million Atlantic Canadians.</p>
             <div class="download-btn-container">
-                <a href="downloads/atlantic_crisis.png" download="DBS_Atlantic_Crisis.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/atlantic_crisis.png" download="DBS_Atlantic_Crisis.png" class="map-download-btn" aria-label="Download Atlantic Crisis as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map_atlantic_crisis.html"></iframe>
+            <div class="loading-indicator" id="loading-atlanticCrisis" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Atlantic Crisis loads</span>
+            </div>
+            <div class="error-indicator" id="error-atlanticCrisis" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map_atlantic_crisis.html" title="Atlantic Crisis visualization" loading="lazy" onload="hideLoading('atlanticCrisis')" onerror="showError('atlanticCrisis')"></iframe>
         </div>
 
-        <div id="map3" class="map-container">
+        <div id="map3" class="map-container" role="tabpanel" aria-labelledby="tab-map3">
             <h2>Indigenous Access Crisis</h2>
             <p>Actual travel burden faced by Indigenous communities based on 920 real patient journeys. Indigenous communities experience 2.84x higher travel burden. 20 FSAs with critical access (>300km).</p>
             <div class="download-btn-container">
-                <a href="downloads/indigenous_access_crisis.png" download="DBS_Indigenous_Access_Crisis.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/indigenous_access_crisis.png" download="DBS_Indigenous_Access_Crisis.png" class="map-download-btn" aria-label="Download Indigenous Access Crisis as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map3_indigenous_access_crisis.html"></iframe>
+            <div class="loading-indicator" id="loading-map3" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Indigenous Access Crisis loads</span>
+            </div>
+            <div class="error-indicator" id="error-map3" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map3_indigenous_access_crisis.html" title="Indigenous Access Crisis visualization" loading="lazy" onload="hideLoading('map3')" onerror="showError('map3')"></iframe>
         </div>
 
-        <div id="map4" class="map-container">
+        <div id="map4" class="map-container" role="tabpanel" aria-labelledby="tab-map4">
             <h2>Multi-Barrier Service Gaps</h2>
             <p>Identifies FSAs facing multiple simultaneous access barriers: distance >200km, low income, high inequality, high Indigenous population, and high visible minority rates.</p>
             <div class="download-btn-container">
-                <a href="downloads/service_gaps_multibarrier.png" download="DBS_Service_Gaps_Multi_Barrier.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/service_gaps_multibarrier.png" download="DBS_Service_Gaps_Multi_Barrier.png" class="map-download-btn" aria-label="Download Multi-Barrier Service Gaps as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map4_service_gaps_multibarrier.html"></iframe>
+            <div class="loading-indicator" id="loading-map4" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Multi-Barrier Service Gaps loads</span>
+            </div>
+            <div class="error-indicator" id="error-map4" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map4_service_gaps_multibarrier.html" title="Multi-Barrier Service Gaps visualization" loading="lazy" onload="hideLoading('map4')" onerror="showError('map4')"></iframe>
         </div>
 
-        <div id="map5" class="map-container">
+        <div id="map5" class="map-container" role="tabpanel" aria-labelledby="tab-map5">
             <h2>Patient Flow Analysis</h2>
             <p>Actual hospital utilization patterns based on 920 patients. Reveals market concentration and flow patterns. 30 FSAs (5.9%) show suboptimal routing where patients bypassed nearer centers.</p>
             <div class="download-btn-container">
-                <a href="downloads/patient_flow_analysis.png" download="DBS_Patient_Flow_Analysis.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/patient_flow_analysis.png" download="DBS_Patient_Flow_Analysis.png" class="map-download-btn" aria-label="Download Patient Flow Analysis as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map5_patient_flow_lines.html"></iframe>
+            <div class="loading-indicator" id="loading-map5" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Patient Flow Analysis loads</span>
+            </div>
+            <div class="error-indicator" id="error-map5" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map5_patient_flow_lines.html" title="Patient Flow Analysis visualization" loading="lazy" onload="hideLoading('map5')" onerror="showError('map5')"></iframe>
         </div>
 
-        <div id="trueFlows" class="map-container">
+        <div id="trueFlows" class="map-container" role="tabpanel" aria-labelledby="tab-trueFlows">
             <h2>TRUE Patient Flows</h2>
             <p>All 920 actual patient journeys from raw data without aggregation. Includes dramatic long-distance flows like X0X→Ottawa (4,752 km) and T2N→Toronto (3,418 km). Shows 409 more flows than nearest-center analysis.</p>
             <div class="download-btn-container">
-                <a href="downloads/true_patient_flows.png" download="DBS_TRUE_Patient_Flows.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/true_patient_flows.png" download="DBS_TRUE_Patient_Flows.png" class="map-download-btn" aria-label="Download TRUE Patient Flows as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map_true_patient_flows.html"></iframe>
+            <div class="loading-indicator" id="loading-trueFlows" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the TRUE Patient Flows loads</span>
+            </div>
+            <div class="error-indicator" id="error-trueFlows" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map_true_patient_flows.html" title="TRUE Patient Flows visualization" loading="lazy" onload="hideLoading('trueFlows')" onerror="showError('trueFlows')"></iframe>
         </div>
 
-        <div id="systemFlow" class="map-container">
+        <div id="systemFlow" class="map-container" role="tabpanel" aria-labelledby="tab-systemFlow">
             <h2>System Flow Analysis</h2>
             <p>Interactive Sankey diagram showing patient flow from provinces to treatment centers. Flow thickness represents patient volume. Color-coded by distance. Reveals Center 16's 62.6% market dominance (576/920 patients).</p>
             <div class="download-btn-container">
-                <a href="downloads/system_flow.png" download="DBS_System_Flow_Analysis.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/system_flow.png" download="DBS_System_Flow_Analysis.png" class="map-download-btn" aria-label="Download System Flow Analysis as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map_system_flow.html"></iframe>
+            <div class="loading-indicator" id="loading-systemFlow" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the System Flow Analysis loads</span>
+            </div>
+            <div class="error-indicator" id="error-systemFlow" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map_system_flow.html" title="System Flow Analysis visualization" loading="lazy" onload="hideLoading('systemFlow')" onerror="showError('systemFlow')"></iframe>
         </div>
 
-        <div id="hiddenCrisis" class="map-container">
+        <div id="hiddenCrisis" class="map-container" role="tabpanel" aria-labelledby="tab-hiddenCrisis">
             <h2>Hidden Crisis: Unmet Need</h2>
             <p>Distance decay modeling reveals 68 distant single-patient FSAs are statistical anomalies, suggesting 340-1,360 deterred patients. For every patient who made the 200+km journey, 5-20 others may have been unable to access treatment.</p>
             <div class="download-btn-container">
-                <a href="downloads/hidden_crisis.png" download="DBS_Hidden_Crisis_Unmet_Need.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/hidden_crisis.png" download="DBS_Hidden_Crisis_Unmet_Need.png" class="map-download-btn" aria-label="Download Hidden Crisis as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="map_hidden_crisis.html"></iframe>
+            <div class="loading-indicator" id="loading-hiddenCrisis" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Hidden Crisis loads</span>
+            </div>
+            <div class="error-indicator" id="error-hiddenCrisis" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map_hidden_crisis.html" title="Hidden Crisis visualization" loading="lazy" onload="hideLoading('hiddenCrisis')" onerror="showError('hiddenCrisis')"></iframe>
         </div>
 
-        <div id="distanceMap" class="map-container">
+        <div id="distanceMap" class="map-container" role="tabpanel" aria-labelledby="tab-distanceMap">
             <h2>Distance Map</h2>
             <p>All FSAs color-coded by distance to nearest DBS center with interactive heatmap overlay.</p>
             <div class="download-btn-container">
-                <a href="downloads/distance_map.png" download="DBS_Distance_Map.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/distance_map.png" download="DBS_Distance_Map.png" class="map-download-btn" aria-label="Download Distance Map as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="distance_map.html"></iframe>
+            <div class="loading-indicator" id="loading-distanceMap" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Distance Map loads</span>
+            </div>
+            <div class="error-indicator" id="error-distanceMap" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="distance_map.html" title="Distance Map visualization" loading="lazy" onload="hideLoading('distanceMap')" onerror="showError('distanceMap')"></iframe>
         </div>
 
-        <div id="combinedAnalysis" class="map-container">
+        <div id="combinedAnalysis" class="map-container" role="tabpanel" aria-labelledby="tab-combinedAnalysis">
             <h2>Combined Multi-Layer Analysis</h2>
             <p>Comprehensive map combining actual patient travel distances with socioeconomic factors, Indigenous population, and vulnerability indices. Interactive layer controls. Includes all socioeconomic fields for every FSA.</p>
             <div class="download-btn-container">
-                <a href="downloads/combined_analysis.png" download="DBS_Combined_Analysis.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/combined_analysis.png" download="DBS_Combined_Analysis.png" class="map-download-btn" aria-label="Download Combined Analysis as high-resolution image">
+                    <svg aria-hidden="true" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="combined_analysis.html"></iframe>
+            <div class="loading-indicator" id="loading-combinedAnalysis" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Combined Analysis loads</span>
+            </div>
+            <div class="error-indicator" id="error-combinedAnalysis" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="combined_analysis.html" title="Combined Multi-Layer Analysis visualization" loading="lazy" onload="hideLoading('combinedAnalysis')" onerror="showError('combinedAnalysis')"></iframe>
         </div>
 
         <footer>
@@ -517,29 +809,166 @@
             </div>
 
             <p style="margin-top: 24px; font-size: 0.85em; color: #94a3b8;">
-                Data validated with 99.2% Statistics Canada 2021 Census coordinates • Statistical methods: Mann-Whitney U, Spearman correlation (ρ=-0.1878, p<0.001), exponential distance decay modeling • Version 3.0 • Updated November 2025
+                Data validated with 99.2% Statistics Canada 2021 Census coordinates • Statistical methods: Mann-Whitney U, Spearman correlation (ρ=-0.1878, p<0.001), exponential distance decay modeling • Version 3.1 • Updated November 2025
             </p>
         </footer>
+        </main>
     </div>
 
     <script>
-        function showMap(mapId) {
-            // Hide all maps
+        /**
+         * Enhanced tab navigation with accessibility support
+         */
+        function showMap(mapId, fromKeyboard = false) {
+            // Hide all maps and reset aria attributes
             document.querySelectorAll('.map-container').forEach(container => {
                 container.classList.remove('active');
             });
 
-            // Remove active class from all tabs
+            // Remove active class and update aria-selected for all tabs
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
             });
 
             // Show selected map
-            document.getElementById(mapId).classList.add('active');
+            const targetMap = document.getElementById(mapId);
+            if (targetMap) {
+                targetMap.classList.add('active');
+                
+                // Activate corresponding tab
+                const targetTab = document.getElementById(`tab-${mapId}`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                    targetTab.setAttribute('aria-selected', 'true');
+                    
+                    // Focus management for keyboard navigation
+                    if (fromKeyboard) {
+                        targetTab.focus();
+                    }
+                }
 
-            // Activate corresponding tab
-            event.target.classList.add('active');
+                // Announce to screen readers
+                announceToScreenReader(`Loaded ${targetTab ? targetTab.textContent : mapId} visualization`);
+            }
         }
+
+        /**
+         * Hide loading indicator when iframe loads successfully
+         */
+        function hideLoading(mapId) {
+            const loadingEl = document.getElementById(`loading-${mapId}`);
+            if (loadingEl) {
+                loadingEl.style.display = 'none';
+                loadingEl.setAttribute('aria-busy', 'false');
+            }
+        }
+
+        /**
+         * Show error indicator when iframe fails to load
+         */
+        function showError(mapId) {
+            const loadingEl = document.getElementById(`loading-${mapId}`);
+            const errorEl = document.getElementById(`error-${mapId}`);
+            
+            if (loadingEl) {
+                loadingEl.style.display = 'none';
+                loadingEl.setAttribute('aria-busy', 'false');
+            }
+            
+            if (errorEl) {
+                errorEl.classList.add('show');
+            }
+            
+            announceToScreenReader(`Error loading ${mapId} visualization. Please try refreshing the page.`);
+        }
+
+        /**
+         * Announce message to screen readers
+         */
+        function announceToScreenReader(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('role', 'status');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.className = 'sr-only';
+            announcement.textContent = message;
+            
+            document.body.appendChild(announcement);
+            
+            // Remove after announcement
+            setTimeout(() => {
+                if (announcement.parentNode === document.body) {
+                    document.body.removeChild(announcement);
+                }
+            }, 1000);
+        }
+
+        /**
+         * Keyboard navigation for tabs
+         */
+        function initKeyboardNavigation() {
+            const tabs = Array.from(document.querySelectorAll('.nav-tab'));
+            
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('keydown', (e) => {
+                    let targetIndex = index;
+                    
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            targetIndex = index > 0 ? index - 1 : tabs.length - 1;
+                            tabs[targetIndex].click();
+                            tabs[targetIndex].focus();
+                            break;
+                            
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            targetIndex = index < tabs.length - 1 ? index + 1 : 0;
+                            tabs[targetIndex].click();
+                            tabs[targetIndex].focus();
+                            break;
+                            
+                        case 'Home':
+                            e.preventDefault();
+                            tabs[0].click();
+                            tabs[0].focus();
+                            break;
+                            
+                        case 'End':
+                            e.preventDefault();
+                            tabs[tabs.length - 1].click();
+                            tabs[tabs.length - 1].focus();
+                            break;
+                    }
+                });
+            });
+        }
+
+        /**
+         * Initialize on page load
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            initKeyboardNavigation();
+            
+            // Hide initial loading indicator after a delay if not already loaded
+            setTimeout(() => {
+                const overviewLoading = document.getElementById('loading-overview');
+                if (overviewLoading && overviewLoading.style.display !== 'none') {
+                    // If still loading after 10 seconds, might be slow connection
+                    const loadingTextElem = overviewLoading.querySelector('.loading-text');
+                    if (loadingTextElem) {
+                        loadingTextElem.textContent = 
+                            'Still loading... This may take a moment on slower connections.';
+                    }
+                }
+            }, 10000);
+            
+            console.log('DBS Dashboard initialized with enhanced accessibility features');
+        });
+
+        /**
+         * Track analytics (placeholder for future implementation)
+         */
     </script>
 </body>
 </html>
