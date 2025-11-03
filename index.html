@@ -287,7 +287,7 @@
         <header>
             <h1>DBS Access Disparities Dashboard</h1>
             <p>Interactive Analysis of Deep Brain Stimulation Access Across Canada</p>
-            <p style="font-size: 0.85em; margin-top: 16px; opacity: 0.75;">920 Patient Records • 511 Geographic Areas • 10 Treatment Centers • 13 Visualizations</p>
+            <p style="font-size: 0.85em; margin-top: 16px; opacity: 0.75;">920 Patient Records • 511 Geographic Areas • 10 Treatment Centers • 15 Visualizations</p>
         </header>
 
         <div class="info-banner">
@@ -305,6 +305,8 @@
             <button class="nav-tab" onclick="showMap('map4')">Service Gaps</button>
             <button class="nav-tab" onclick="showMap('map5')">Optimal Flows</button>
             <button class="nav-tab" onclick="showMap('trueFlows')">TRUE Patient Flows (920)</button>
+            <button class="nav-tab" onclick="showMap('jitteredFlow')">Patient Flow (Jittered)</button>
+            <button class="nav-tab" onclick="showMap('pieChartFlow')">Patient Flow (Pie Chart)</button>
             <button class="nav-tab" onclick="showMap('systemFlow')">System Flow</button>
             <button class="nav-tab" onclick="showMap('hiddenCrisis')">Hidden Crisis</button>
             <button class="nav-tab" onclick="showMap('distanceMap')">Distance Map</button>
@@ -444,6 +446,36 @@
                 </a>
             </div>
             <iframe class="map-frame" src="map_true_patient_flows.html"></iframe>
+        </div>
+
+        <div id="jitteredFlow" class="map-container">
+            <h2>Patient Flow - Individual Distribution (Jittered)</h2>
+            <p>920 individual patients visualized as colored dots (color = center used). Dots jittered within ~5km of FSA centroid to show overlapping patients. Reveals individual patient choices and patterns where same FSA residents choose different centers.</p>
+            <div class="download-btn-container">
+                <a href="downloads/patient_flow_jittered.png" download="DBS_Patient_Flow_Jittered.png" class="map-download-btn">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download High-Res Image
+                </a>
+            </div>
+            <iframe class="map-frame" src="map_patient_flow_jittered.html"></iframe>
+        </div>
+
+        <div id="pieChartFlow" class="map-container">
+            <h2>Patient Flow - FSA Aggregated (Pie Charts)</h2>
+            <p>511 FSAs shown as pie charts where each slice represents patients going to a specific center. Pie size scaled by patient count. Cleaner visualization for presentations showing center utilization patterns per FSA. 28 FSAs show multi-center usage.</p>
+            <div class="download-btn-container">
+                <a href="downloads/patient_flow_piechart.png" download="DBS_Patient_Flow_PieChart.png" class="map-download-btn">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                        <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+                    </svg>
+                    Download High-Res Image
+                </a>
+            </div>
+            <iframe class="map-frame" src="map_patient_flow_piechart.html"></iframe>
         </div>
 
         <div id="systemFlow" class="map-container">
