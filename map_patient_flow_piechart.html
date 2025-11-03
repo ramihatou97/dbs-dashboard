@@ -136,14 +136,14 @@
         const centerColors = {
             'Toronto Western Hospital': '#E63946',
             'London Health Sciences': '#2A9D8F',
-            "Hôpital de L'Enfant Jésus, Quebec": '#F4A261',
+            "Hôpital de L'Enfant Jésus, Quebec": '#FF1493',
             'QEII Health Sciences Centre, Halifax': '#264653',
-            "Centre hospitalier de l'Université de Montréal": '#E76F51',
+            "Centre hospitalier de l'Université de Montréal": '#00CED1',
             'Ottawa Civic Hospital': '#8338EC',
             'University of Alberta Hospital': '#06FFA5',
             'Royal University Hospital, Saskatoon': '#FFB703',
             'Foothills Hospital': '#023E8A',
-            'Université de Sherbrooke, Centre Hospitalier': '#BC6C25'
+            'Université de Sherbrooke, Centre Hospitalier': '#9370DB'
         };
 
         // Short names for legend
@@ -378,8 +378,8 @@
             // Add DBS center markers
             centerData.forEach(center => {
                 const centerCount = centerCounts[center['Hospital Center']] || 0;
-                const baseScale = 18;
-                const scale = baseScale + (centerCount / 576 * 12);
+                const baseScale = 15;
+                const scale = baseScale + (centerCount / 576 * 18); // Enhanced proportional scaling
 
                 new google.maps.Marker({
                     position: { lat: center.latitude, lng: center.longitude },
@@ -388,7 +388,7 @@
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: scale,
                         fillColor: centerColors[center['Hospital Center']],
-                        fillOpacity: 0.95,
+                        fillOpacity: 0.6,
                         strokeColor: '#ffffff',
                         strokeWeight: 2.5
                     },
