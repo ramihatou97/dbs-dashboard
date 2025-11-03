@@ -223,7 +223,7 @@
 
         async function initMap() {
             map = new google.maps.Map(document.getElementById('map'), {
-                zoom: 4,
+                zoom: 5.5,
                 center: { lat: 56.1304, lng: -106.3468 },
                 mapTypeId: 'roadmap',
                 styles: [
@@ -280,11 +280,11 @@
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
-                        scale: 5,
+                        scale: 14,
                         fillColor: patient.color,
                         fillOpacity: 0.8,
                         strokeColor: '#ffffff',
-                        strokeWeight: 1
+                        strokeWeight: 2
                     }
                 });
 
@@ -311,20 +311,16 @@
 
             // Add DBS center markers
             centerData.forEach(center => {
-                const centerCount = centerCounts[center['Hospital Center']] || 0;
-                const baseScale = 15;
-                const scale = baseScale + (centerCount / 576 * 18); // Enhanced proportional scaling
-
                 new google.maps.Marker({
                     position: { lat: center.latitude, lng: center.longitude },
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
-                        scale: scale,
+                        scale: 22,
                         fillColor: centerColors[center['Hospital Center']],
-                        fillOpacity: 0.6,
+                        fillOpacity: 0.92,
                         strokeColor: '#ffffff',
-                        strokeWeight: 2.5
+                        strokeWeight: 3
                     },
                     title: center['Hospital Center'],
                     zIndex: 2000
