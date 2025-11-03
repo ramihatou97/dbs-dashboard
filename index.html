@@ -955,8 +955,11 @@
                 const overviewLoading = document.getElementById('loading-overview');
                 if (overviewLoading && overviewLoading.style.display !== 'none') {
                     // If still loading after 10 seconds, might be slow connection
-                    overviewLoading.querySelector('.loading-text').textContent = 
-                        'Still loading... This may take a moment on slower connections.';
+                    const loadingTextElem = overviewLoading.querySelector('.loading-text');
+                    if (loadingTextElem) {
+                        loadingTextElem.textContent = 
+                            'Still loading... This may take a moment on slower connections.';
+                    }
                 }
             }, 10000);
             
