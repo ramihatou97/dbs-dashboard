@@ -375,21 +375,40 @@
                 overlays.push(overlay);
             });
 
-            // Add DBS center markers
+            // Add DBS center markers with halo effect
             centerData.forEach(center => {
+                const position = { lat: center.latitude, lng: center.longitude };
+
+                // Outer halo - creates glow effect
                 new google.maps.Marker({
-                    position: { lat: center.latitude, lng: center.longitude },
+                    position: position,
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
-                        scale: 22,
-                        fillColor: centerColors[center['Hospital Center']],
-                        fillOpacity: 0.92,
+                        scale: 50,
+                        fillColor: '#1e40af',
+                        fillOpacity: 0.2,
                         strokeColor: '#ffffff',
-                        strokeWeight: 3
+                        strokeWeight: 4,
+                        strokeOpacity: 0.3
+                    },
+                    zIndex: 2999
+                });
+
+                // Main center marker - distinct blue with gold stroke
+                new google.maps.Marker({
+                    position: position,
+                    map: map,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        scale: 35,
+                        fillColor: '#1e40af',
+                        fillOpacity: 0.98,
+                        strokeColor: '#FFD700',
+                        strokeWeight: 4
                     },
                     title: center['Hospital Center'],
-                    zIndex: 2000
+                    zIndex: 3000
                 });
             });
         }
