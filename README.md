@@ -1,5 +1,9 @@
 # DBS Access Dashboard - GitHub Pages Deployment Guide
 
+## Version 3.1 - Enhanced Edition 🎉
+
+**New in Version 3.1**: Comprehensive accessibility improvements, enhanced UX, SEO optimization, and performance enhancements. See `ENHANCEMENTS.md` for full details.
+
 ## Quick Start (5 Minutes)
 
 ### 1. Secure Your API Key
@@ -34,11 +38,20 @@ Your dashboard will be live at: `https://YOUR_USERNAME.github.io/dbs-dashboard/`
 5. **map5_patient_flow_lines.html** - Patient flow visualization with dramatic arrows
 
 ### Dashboard
-- **index.html** - Main dashboard with tabbed interface
+- **index.html** - Main dashboard with tabbed interface (Enhanced v3.1)
+  - ✅ WCAG 2.1 AA accessibility compliant
+  - ✅ Keyboard navigation with arrow keys
+  - ✅ Screen reader optimized
+  - ✅ Loading indicators and error handling
+  - ✅ SEO optimized with comprehensive meta tags
+  - ✅ Print-friendly styles
 
 ### Documentation
 - **API_SETUP_GUIDE.md** - Google Maps API security configuration
 - **README.md** - This file
+- **ENHANCEMENTS.md** - 🆕 Detailed documentation of all v3.1 enhancements
+- **TESTING_CHECKLIST.md** - 🆕 Comprehensive testing procedures
+- **DASHBOARD_SUMMARY.md** - Complete overview of all visualizations
 
 ## Data Quality Summary
 
@@ -80,6 +93,21 @@ https://YOUR_USERNAME.github.io/dbs-dashboard/map1_travel_burden_heatmap.html
 https://YOUR_USERNAME.github.io/dbs-dashboard/map2_vulnerability_index.html
 ...
 ```
+
+## Accessibility Features (New in v3.1) ♿
+
+The dashboard now includes comprehensive accessibility features:
+
+- **Keyboard Navigation**: Use Tab, Arrow keys, Home/End to navigate
+- **Screen Reader Support**: Full ARIA implementation with live regions
+- **Skip Navigation**: Jump directly to main content
+- **Focus Indicators**: Clear visual indicators for keyboard users
+- **High Contrast Mode**: Automatic support for OS high contrast settings
+- **Reduced Motion**: Respects user preferences for reduced animations
+- **Loading States**: Visual and audible feedback for all content loading
+- **Error Handling**: Clear error messages and recovery guidance
+
+See `ENHANCEMENTS.md` for complete details and `TESTING_CHECKLIST.md` for testing procedures.
 
 ## Support
 
