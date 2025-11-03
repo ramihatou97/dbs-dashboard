@@ -192,11 +192,11 @@
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
-                        scale: center.scale,
+                        scale: center.scale * 0.5,
                         fillColor: '#1e40af',
-                        fillOpacity: 0.9,
-                        strokeColor: '#fff',
-                        strokeWeight: 4
+                        fillOpacity: 0.88,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
                     },
                     title: center.name,
                     zIndex: 1000
@@ -243,8 +243,8 @@
                         ],
                         geodesic: true,
                         strokeColor: flow.distance > 500 ? '#dc2626' : '#3b82f6',
-                        strokeOpacity: 0.3,
-                        strokeWeight: 1.5,
+                        strokeOpacity: 0.25,
+                        strokeWeight: 1.2,
                         map: map
                     });
                     flowLines.push(line);

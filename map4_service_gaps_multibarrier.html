@@ -188,11 +188,11 @@
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
-                        scale: fsa.barrier_count >= 3 ? 33 : (fsa.barrier_count >= 2 ? 27 : 21),
+                        scale: fsa.barrier_count >= 3 ? 18 : (fsa.barrier_count >= 2 ? 15 : 12),
                         fillColor: fsa.color,
-                        fillOpacity: 0.85,
-                        strokeColor: '#fff',
-                        strokeWeight: fsa.barrier_count >= 3 ? 5 : 4
+                        fillOpacity: 0.72,
+                        strokeColor: '#ffffff',
+                        strokeWeight: fsa.barrier_count >= 3 ? 2.5 : 2
                     }
                 });
 
@@ -234,11 +234,11 @@
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
-                        scale: 48,
+                        scale: 22,
                         fillColor: '#1e40af',
-                        fillOpacity: 1,
-                        strokeColor: '#fff',
-                        strokeWeight: 4
+                        fillOpacity: 0.92,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2
                     },
                     title: center['Hospital Center'],
                     zIndex: 1000
