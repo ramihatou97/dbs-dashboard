@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Interactive analysis of Deep Brain Stimulation (DBS) access disparities across Canada. Comprehensive visualization of 920 patient records, 511 geographic areas, and socioeconomic barriers to healthcare access.">
+    <meta name="keywords" content="DBS, Deep Brain Stimulation, healthcare access, Canada, health disparities, medical geography, patient access">
+    <meta name="author" content="DBS Access Research Team">
+    <meta name="theme-color" content="#4a5568">
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="DBS Access Disparities Dashboard - Canada">
+    <meta property="og:description" content="Interactive analysis of Deep Brain Stimulation access across Canada. 920 patient records • 511 geographic areas • 10 treatment centers">
+    <meta property="og:url" content="https://ramihatou97.github.io/dbs-dashboard/">
+    
     <title>DBS Access Disparities Dashboard - Canada</title>
     <style>
         * {
@@ -280,50 +291,211 @@
             width: 14px;
             height: 14px;
         }
+
+        /* Loading Indicator Styles */
+        .loading-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            color: #64748b;
+        }
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 4px solid #e2e8f0;
+            border-top: 4px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        /* Error State Styles */
+        .error-indicator {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 400px;
+            color: #ef4444;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .error-indicator.show {
+            display: flex;
+        }
+
+        .error-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .error-text {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .error-details {
+            font-size: 14px;
+            color: #64748b;
+        }
+
+        /* Accessibility improvements */
+        .skip-link {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: #3b82f6;
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            border-radius: 0 0 4px 0;
+            z-index: 100;
+        }
+
+        .skip-link:focus {
+            top: 0;
+        }
+
+        /* Focus visible for keyboard navigation */
+        .nav-tab:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        .download-btn:focus-visible,
+        .map-download-btn:focus-visible {
+            outline: 3px solid #3b82f6;
+            outline-offset: 2px;
+        }
+
+        /* Print styles */
+        @media print {
+            body {
+                padding: 0;
+                background: white;
+            }
+
+            .nav-tabs,
+            .download-btn-container,
+            .skip-link {
+                display: none;
+            }
+
+            .map-container {
+                display: block !important;
+                page-break-after: always;
+            }
+
+            .map-frame {
+                border: 1px solid #ccc;
+            }
+        }
+
+        /* Screen reader only content */
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border-width: 0;
+        }
+
+        /* Reduced motion support */
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* High contrast mode support */
+        @media (prefers-contrast: high) {
+            .nav-tab {
+                border: 2px solid currentColor;
+            }
+
+            .nav-tab.active {
+                background: #000;
+                color: #fff;
+            }
+        }
     </style>
 </head>
 <body>
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div class="container">
-        <header>
+        <header role="banner">
             <h1>DBS Access Disparities Dashboard</h1>
             <p>Interactive Analysis of Deep Brain Stimulation Access Across Canada</p>
             <p style="font-size: 0.85em; margin-top: 16px; opacity: 0.75;">920 Patient Records • 511 Geographic Areas • 10 Treatment Centers • 13 Visualizations</p>
         </header>
 
-        <div class="info-banner">
+        <div class="info-banner" role="complementary" aria-label="Dataset overview">
             <h3>Dataset Overview</h3>
             <p>Comprehensive analysis of geographic and socioeconomic barriers to DBS surgery access in Canada. Based on 920 verified patient records across 511 FSAs with data from Statistics Canada 2021 Census and Google Distance Matrix API. Interactive maps include distance metrics, household income, inequality indices, and demographic data.</p>
         </div>
 
-        <div class="nav-tabs">
-            <button class="nav-tab active" onclick="showMap('overview')">Executive Overview</button>
-            <button class="nav-tab" onclick="showMap('map1')">Travel Burden</button>
-            <button class="nav-tab" onclick="showMap('map2')">Vulnerability Index</button>
-            <button class="nav-tab" onclick="showMap('incomeParadox')">Income Paradox</button>
-            <button class="nav-tab" onclick="showMap('atlanticCrisis')">Atlantic Crisis</button>
-            <button class="nav-tab" onclick="showMap('map3')">Indigenous Access</button>
-            <button class="nav-tab" onclick="showMap('map4')">Service Gaps</button>
-            <button class="nav-tab" onclick="showMap('map5')">Optimal Flows</button>
-            <button class="nav-tab" onclick="showMap('trueFlows')">TRUE Patient Flows (920)</button>
-            <button class="nav-tab" onclick="showMap('systemFlow')">System Flow</button>
-            <button class="nav-tab" onclick="showMap('hiddenCrisis')">Hidden Crisis</button>
-            <button class="nav-tab" onclick="showMap('distanceMap')">Distance Map</button>
-            <button class="nav-tab" onclick="showMap('combinedAnalysis')">Combined Analysis</button>
-        </div>
+        <nav class="nav-tabs" role="tablist" aria-label="Dashboard visualizations">
+            <button class="nav-tab active" onclick="showMap('overview')" role="tab" aria-selected="true" aria-controls="overview" id="tab-overview">Executive Overview</button>
+            <button class="nav-tab" onclick="showMap('map1')" role="tab" aria-selected="false" aria-controls="map1" id="tab-map1">Travel Burden</button>
+            <button class="nav-tab" onclick="showMap('map2')" role="tab" aria-selected="false" aria-controls="map2" id="tab-map2">Vulnerability Index</button>
+            <button class="nav-tab" onclick="showMap('incomeParadox')" role="tab" aria-selected="false" aria-controls="incomeParadox" id="tab-incomeParadox">Income Paradox</button>
+            <button class="nav-tab" onclick="showMap('atlanticCrisis')" role="tab" aria-selected="false" aria-controls="atlanticCrisis" id="tab-atlanticCrisis">Atlantic Crisis</button>
+            <button class="nav-tab" onclick="showMap('map3')" role="tab" aria-selected="false" aria-controls="map3" id="tab-map3">Indigenous Access</button>
+            <button class="nav-tab" onclick="showMap('map4')" role="tab" aria-selected="false" aria-controls="map4" id="tab-map4">Service Gaps</button>
+            <button class="nav-tab" onclick="showMap('map5')" role="tab" aria-selected="false" aria-controls="map5" id="tab-map5">Optimal Flows</button>
+            <button class="nav-tab" onclick="showMap('trueFlows')" role="tab" aria-selected="false" aria-controls="trueFlows" id="tab-trueFlows">TRUE Patient Flows (920)</button>
+            <button class="nav-tab" onclick="showMap('systemFlow')" role="tab" aria-selected="false" aria-controls="systemFlow" id="tab-systemFlow">System Flow</button>
+            <button class="nav-tab" onclick="showMap('hiddenCrisis')" role="tab" aria-selected="false" aria-controls="hiddenCrisis" id="tab-hiddenCrisis">Hidden Crisis</button>
+            <button class="nav-tab" onclick="showMap('distanceMap')" role="tab" aria-selected="false" aria-controls="distanceMap" id="tab-distanceMap">Distance Map</button>
+            <button class="nav-tab" onclick="showMap('combinedAnalysis')" role="tab" aria-selected="false" aria-controls="combinedAnalysis" id="tab-combinedAnalysis">Combined Analysis</button>
+        </nav>
 
-        <div id="overview" class="map-container active">
+        <main id="main-content" role="main">
+
+        <div id="overview" class="map-container active" role="tabpanel" aria-labelledby="tab-overview">
             <h2>Executive Overview</h2>
             <p>Six-panel provincial utilization summary showing patient volumes, travel burden, economic profiles, access challenges, interprovincial flows, and Atlantic Canada crisis. Based on 920 verified patient records.</p>
             <div class="download-btn-container">
-                <a href="downloads/overview_provincial.png" download="DBS_Executive_Overview.png" class="map-download-btn">
-                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                <a href="downloads/overview_provincial.png" download="DBS_Executive_Overview.png" class="map-download-btn" aria-label="Download Executive Overview as high-resolution image">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16" aria-hidden="true">
                         <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
                         <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
                     </svg>
                     Download High-Res Image
                 </a>
             </div>
-            <iframe class="map-frame" src="overview_wrapper.html"></iframe>
+            <div class="loading-indicator" id="loading-overview" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Executive Overview loads</span>
+            </div>
+            <div class="error-indicator" id="error-overview" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="overview_wrapper.html" title="Executive Overview - Six-panel provincial utilization summary" loading="lazy" onload="hideLoading('overview')" onerror="showError('overview')"></iframe>
         </div>
 
         <div id="map1" class="map-container">
@@ -520,25 +692,162 @@
                 Data validated with 99.2% Statistics Canada 2021 Census coordinates • Statistical methods: Mann-Whitney U, Spearman correlation (ρ=-0.1878, p<0.001), exponential distance decay modeling • Version 3.0 • Updated November 2025
             </p>
         </footer>
+        </main>
     </div>
 
     <script>
-        function showMap(mapId) {
-            // Hide all maps
+        /**
+         * Enhanced tab navigation with accessibility support
+         */
+        function showMap(mapId, fromKeyboard = false) {
+            // Hide all maps and reset aria attributes
             document.querySelectorAll('.map-container').forEach(container => {
                 container.classList.remove('active');
             });
 
-            // Remove active class from all tabs
+            // Remove active class and update aria-selected for all tabs
             document.querySelectorAll('.nav-tab').forEach(tab => {
                 tab.classList.remove('active');
+                tab.setAttribute('aria-selected', 'false');
             });
 
             // Show selected map
-            document.getElementById(mapId).classList.add('active');
+            const targetMap = document.getElementById(mapId);
+            if (targetMap) {
+                targetMap.classList.add('active');
+                
+                // Activate corresponding tab
+                const targetTab = document.getElementById(`tab-${mapId}`);
+                if (targetTab) {
+                    targetTab.classList.add('active');
+                    targetTab.setAttribute('aria-selected', 'true');
+                    
+                    // Focus management for keyboard navigation
+                    if (fromKeyboard) {
+                        targetTab.focus();
+                    }
+                }
 
-            // Activate corresponding tab
-            event.target.classList.add('active');
+                // Announce to screen readers
+                announceToScreenReader(`Loaded ${targetTab ? targetTab.textContent : mapId} visualization`);
+            }
+        }
+
+        /**
+         * Hide loading indicator when iframe loads successfully
+         */
+        function hideLoading(mapId) {
+            const loadingEl = document.getElementById(`loading-${mapId}`);
+            if (loadingEl) {
+                loadingEl.style.display = 'none';
+                loadingEl.setAttribute('aria-busy', 'false');
+            }
+        }
+
+        /**
+         * Show error indicator when iframe fails to load
+         */
+        function showError(mapId) {
+            const loadingEl = document.getElementById(`loading-${mapId}`);
+            const errorEl = document.getElementById(`error-${mapId}`);
+            
+            if (loadingEl) {
+                loadingEl.style.display = 'none';
+                loadingEl.setAttribute('aria-busy', 'false');
+            }
+            
+            if (errorEl) {
+                errorEl.classList.add('show');
+            }
+            
+            announceToScreenReader(`Error loading ${mapId} visualization. Please try refreshing the page.`);
+        }
+
+        /**
+         * Announce message to screen readers
+         */
+        function announceToScreenReader(message) {
+            const announcement = document.createElement('div');
+            announcement.setAttribute('role', 'status');
+            announcement.setAttribute('aria-live', 'polite');
+            announcement.className = 'sr-only';
+            announcement.textContent = message;
+            
+            document.body.appendChild(announcement);
+            
+            // Remove after announcement
+            setTimeout(() => {
+                document.body.removeChild(announcement);
+            }, 1000);
+        }
+
+        /**
+         * Keyboard navigation for tabs
+         */
+        function initKeyboardNavigation() {
+            const tabs = Array.from(document.querySelectorAll('.nav-tab'));
+            
+            tabs.forEach((tab, index) => {
+                tab.addEventListener('keydown', (e) => {
+                    let targetIndex = index;
+                    
+                    switch(e.key) {
+                        case 'ArrowLeft':
+                            e.preventDefault();
+                            targetIndex = index > 0 ? index - 1 : tabs.length - 1;
+                            tabs[targetIndex].click();
+                            tabs[targetIndex].focus();
+                            break;
+                            
+                        case 'ArrowRight':
+                            e.preventDefault();
+                            targetIndex = index < tabs.length - 1 ? index + 1 : 0;
+                            tabs[targetIndex].click();
+                            tabs[targetIndex].focus();
+                            break;
+                            
+                        case 'Home':
+                            e.preventDefault();
+                            tabs[0].click();
+                            tabs[0].focus();
+                            break;
+                            
+                        case 'End':
+                            e.preventDefault();
+                            tabs[tabs.length - 1].click();
+                            tabs[tabs.length - 1].focus();
+                            break;
+                    }
+                });
+            });
+        }
+
+        /**
+         * Initialize on page load
+         */
+        document.addEventListener('DOMContentLoaded', () => {
+            initKeyboardNavigation();
+            
+            // Hide initial loading indicator after a delay if not already loaded
+            setTimeout(() => {
+                const overviewLoading = document.getElementById('loading-overview');
+                if (overviewLoading && overviewLoading.style.display !== 'none') {
+                    // If still loading after 10 seconds, might be slow connection
+                    overviewLoading.querySelector('.loading-text').textContent = 
+                        'Still loading... This may take a moment on slower connections.';
+                }
+            }, 10000);
+            
+            console.log('DBS Dashboard initialized with enhanced accessibility features');
+        });
+
+        /**
+         * Track analytics (placeholder for future implementation)
+         */
+        function trackVisualization(mapId) {
+            // Placeholder for privacy-friendly analytics
+            // Could integrate with Plausible, Fathom, or similar privacy-focused tools
+            console.log(`Visualization viewed: ${mapId}`);
         }
     </script>
 </body>
