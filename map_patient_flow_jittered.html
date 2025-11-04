@@ -312,36 +312,38 @@
             // Add DBS center markers with halo effect
             centerData.forEach(center => {
                 const position = { lat: center.latitude, lng: center.longitude };
+                const centerName = center['Hospital Center'];
+                const centerColor = centerColors[centerName];
 
-                // Outer halo - creates glow effect
+                // Outer halo - creates glow effect matching center color
                 new google.maps.Marker({
                     position: position,
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: 50,
-                        fillColor: '#1e40af',
+                        fillColor: centerColor,
                         fillOpacity: 0.2,
-                        strokeColor: '#ffffff',
+                        strokeColor: '#1a1a1a',
                         strokeWeight: 4,
                         strokeOpacity: 0.3
                     },
                     zIndex: 2999
                 });
 
-                // Main center marker - distinct blue with gold stroke
+                // Main center marker - matches patient color with uniform dark border
                 new google.maps.Marker({
                     position: position,
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: 35,
-                        fillColor: '#1e40af',
+                        fillColor: centerColor,
                         fillOpacity: 0.98,
-                        strokeColor: '#FFD700',
+                        strokeColor: '#1a1a1a',
                         strokeWeight: 4
                     },
-                    title: center['Hospital Center'],
+                    title: centerName,
                     zIndex: 3000
                 });
             });
