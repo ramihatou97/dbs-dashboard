@@ -117,6 +117,7 @@
     </div>
 
     <div class="download-container">
+        <button class="download-btn" onclick="toggleCenters()" id="toggleCentersBtn">👁️ Hide DBS Centers</button>
         <button class="download-btn" onclick="downloadMapPNG()">📥 Download PNG</button>
         <button class="download-btn" onclick="downloadMapPDF()">📄 Download PDF</button>
     </div>
@@ -126,6 +127,9 @@
     <script>
         let map;
         const markers = [];
+        const centerHaloMarkers = [];
+        const centerMainMarkers = [];
+        let centersVisible = true;
 
         // Color palette for 10 DBS centers
         const centerColors = {
@@ -218,6 +222,23 @@
                 alert('PDF download failed. Please try again.');
             } finally {
                 hideOverlay();
+            }
+        }
+
+        function toggleCenters() {
+            centersVisible = !centersVisible;
+            const btn = document.getElementById('toggleCentersBtn');
+
+            if (centersVisible) {
+                // Show center markers
+                centerHaloMarkers.forEach(marker => marker.setMap(map));
+                centerMainMarkers.forEach(marker => marker.setMap(map));
+                btn.textContent = '👁️ Hide DBS Centers';
+            } else {
+                // Hide center markers
+                centerHaloMarkers.forEach(marker => marker.setMap(null));
+                centerMainMarkers.forEach(marker => marker.setMap(null));
+                btn.textContent = '👁️ Show DBS Centers';
             }
         }
 
@@ -316,7 +337,7 @@
                 const centerColor = centerColors[centerName];
 
                 // Outer halo - creates glow effect matching center color
-                new google.maps.Marker({
+                const haloMarker = new google.maps.Marker({
                     position: position,
                     map: map,
                     icon: {
@@ -330,22 +351,24 @@
                     },
                     zIndex: 2999
                 });
+                centerHaloMarkers.push(haloMarker);
 
                 // Main center marker - matches patient color with uniform dark border
-                new google.maps.Marker({
+                const mainMarker = new google.maps.Marker({
                     position: position,
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
                         scale: 35,
                         fillColor: centerColor,
-                        fillOpacity: 0.98,
+                        fillOpacity: 0.3,
                         strokeColor: '#1a1a1a',
                         strokeWeight: 4
                     },
                     title: centerName,
                     zIndex: 3000
                 });
+                centerMainMarkers.push(mainMarker);
             });
         }
 
