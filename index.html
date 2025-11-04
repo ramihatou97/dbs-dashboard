@@ -467,6 +467,7 @@
             <button class="nav-tab" onclick="showMap('trueFlows')" role="tab" aria-selected="false" aria-controls="trueFlows" id="tab-trueFlows">TRUE Patient Flows (920)</button>
             <button class="nav-tab" onclick="showMap('jitteredFlow')" role="tab" aria-selected="false" aria-controls="jitteredFlow" id="tab-jitteredFlow">Patient Flow (Jittered)</button>
             <button class="nav-tab" onclick="showMap('pieChartFlow')" role="tab" aria-selected="false" aria-controls="pieChartFlow" id="tab-pieChartFlow">Patient Flow (Pie Chart)</button>
+            <button class="nav-tab" onclick="showMap('bypassAnalysis')" role="tab" aria-selected="false" aria-controls="bypassAnalysis" id="tab-bypassAnalysis">Bypass Analysis</button>
             <button class="nav-tab" onclick="showMap('systemFlow')" role="tab" aria-selected="false" aria-controls="systemFlow" id="tab-systemFlow">System Flow</button>
             <button class="nav-tab" onclick="showMap('hiddenCrisis')" role="tab" aria-selected="false" aria-controls="hiddenCrisis" id="tab-hiddenCrisis">Hidden Crisis</button>
             <button class="nav-tab" onclick="showMap('distanceMap')" role="tab" aria-selected="false" aria-controls="distanceMap" id="tab-distanceMap">Distance Map</button>
@@ -748,6 +749,22 @@
                 <p class="error-details">Please check your internet connection and try refreshing the page.</p>
             </div>
             <iframe class="map-frame" src="map_patient_flow_piechart.html" title="Patient Flow Pie Chart visualization" loading="lazy" onload="hideLoading('pieChartFlow')" onerror="showError('pieChartFlow')"></iframe>
+        </div>
+
+        <div id="bypassAnalysis" class="map-container" role="tabpanel" aria-labelledby="tab-bypassAnalysis">
+            <h2>Patient Bypass Analysis</h2>
+            <p>Highlights patients who bypassed their nearest DBS center to attend a farther facility. Color gradient shows extra distance traveled: gray (no bypass), yellow (0-50km), orange (50-150km), light red (150-300km), dark red (300km+). Includes bypass statistics and individual patient details.</p>
+            <div class="loading-indicator" id="loading-bypassAnalysis" aria-live="polite" aria-busy="true">
+                <div class="loading-spinner" role="status"></div>
+                <p class="loading-text">Loading visualization...</p>
+                <span class="sr-only">Please wait while the Patient Bypass Analysis loads</span>
+            </div>
+            <div class="error-indicator" id="error-bypassAnalysis" aria-live="assertive">
+                <div class="error-icon" aria-hidden="true">⚠️</div>
+                <p class="error-text">Failed to load visualization</p>
+                <p class="error-details">Please check your internet connection and try refreshing the page.</p>
+            </div>
+            <iframe class="map-frame" src="map_patient_bypass_analysis.html" title="Patient Bypass Analysis visualization" loading="lazy" onload="hideLoading('bypassAnalysis')" onerror="showError('bypassAnalysis')"></iframe>
         </div>
 
         <div id="systemFlow" class="map-container" role="tabpanel" aria-labelledby="tab-systemFlow">
