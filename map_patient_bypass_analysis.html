@@ -133,27 +133,29 @@
             return R * c;
         }
 
-        // Get color based on bypass distance
-        function getBypassColor(bypassDistance) {
-            if (bypassDistance <= 0) return '#9ca3af'; // Gray (non-bypass)
-            if (bypassDistance <= 50) return '#FCD34D'; // Yellow
-            if (bypassDistance <= 150) return '#FB923C'; // Orange
-            if (bypassDistance <= 300) return '#F87171'; // Light red
-            return '#DC2626'; // Dark red
+        // Get color based on bypass distance - continuous gradient from light red to dark red
+        function getBypassColor(bypassDistance, maxBypass) {
+            if (bypassDistance <= 0) return '#6b7280'; // Medium gray (non-bypass)
+
+            // Calculate proportion (0 to 1) based on dynamic max
+            const proportion = Math.min(bypassDistance / maxBypass, 1);
+
+            // Continuous gradient: Light red #FCA5A5 (252,165,165) → Dark red #991B1B (153,27,27)
+            const r = Math.round(252 - (proportion * 99));  // 252 → 153
+            const g = Math.round(165 - (proportion * 138)); // 165 → 27
+            const b = Math.round(165 - (proportion * 138)); // 165 → 27
+
+            return `rgb(${r}, ${g}, ${b})`;
         }
 
-        // Get marker scale based on bypass distance
+        // Get marker scale - fixed sizes for clear hierarchy
         function getMarkerScale(bypassDistance) {
-            if (bypassDistance <= 0) return 8; // Small for non-bypass
-            if (bypassDistance <= 50) return 16;
-            if (bypassDistance <= 150) return 18;
-            if (bypassDistance <= 300) return 20;
-            return 24; // Largest for extreme bypass
+            return bypassDistance <= 0 ? 6 : 12; // Non-bypass: 6, Bypass: 12
         }
 
         // Get marker opacity
         function getMarkerOpacity(bypassDistance) {
-            return bypassDistance <= 0 ? 0.3 : 0.9;
+            return bypassDistance <= 0 ? 0.5 : 0.9;
         }
 
         async function initMap() {
@@ -256,24 +258,20 @@
             legend.innerHTML = `
                 <h3>Bypass Distance</h3>
                 <div class="legend-item">
-                    <div class="legend-color" style="background: #9ca3af;"></div>
+                    <div class="legend-color" style="background: #6b7280;"></div>
                     <span>Went to nearest center</span>
                 </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #FCD34D;"></div>
-                    <span>+0-50 km farther</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #FB923C;"></div>
-                    <span>+50-150 km farther</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #F87171;"></div>
-                    <span>+150-300 km farther</span>
-                </div>
-                <div class="legend-item">
-                    <div class="legend-color" style="background: #DC2626;"></div>
-                    <span>+300 km+ farther</span>
+                <div style="margin: 16px 0 8px 0;">
+                    <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px; color: #374151;">
+                        Bypassed Nearest Center
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="flex: 1; height: 24px; background: linear-gradient(to right, #FCA5A5, #991B1B); border-radius: 4px; border: 1px solid #d1d5db;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; font-size: 11px; color: #6b7280; margin-top: 4px;">
+                        <span>0 km</span>
+                        <span>${maxBypassDistance} km</span>
+                    </div>
                 </div>
             `;
             map.controls[google.maps.ControlPosition.TOP_RIGHT].push(legend);
@@ -288,7 +286,7 @@
                 const jitteredLat = jitterCoordinate(patient.lat, 0.05);
                 const jitteredLng = jitterCoordinate(patient.lng, 0.05);
 
-                const markerColor = getBypassColor(patient.bypassDistance);
+                const markerColor = getBypassColor(patient.bypassDistance, maxBypassDistance);
                 const markerScale = getMarkerScale(patient.bypassDistance);
                 const markerOpacity = getMarkerOpacity(patient.bypassDistance);
 
@@ -300,8 +298,8 @@
                         scale: markerScale,
                         fillColor: markerColor,
                         fillOpacity: markerOpacity,
-                        strokeColor: patient.isBypass ? '#1f2937' : '#ffffff',
-                        strokeWeight: patient.isBypass ? 2.5 : 1.5
+                        strokeColor: patient.isBypass ? '#1f2937' : '#374151',
+                        strokeWeight: patient.isBypass ? 2 : 1.5
                     }
                 });
 
@@ -342,42 +340,25 @@
                 markers.push(marker);
             });
 
-            // Add DBS center markers
+            // Add DBS center markers - uniform dark blue, no halos
             centerData.forEach(center => {
                 const position = { lat: center.latitude, lng: center.longitude };
                 const centerName = center['Hospital Center'];
-                const centerColor = centerColors[centerName];
 
-                // Outer halo
+                // Single center marker - dark blue, subtle
                 new google.maps.Marker({
                     position: position,
                     map: map,
                     icon: {
                         path: google.maps.SymbolPath.CIRCLE,
-                        scale: 50,
-                        fillColor: centerColor,
-                        fillOpacity: 0.2,
+                        scale: 16,
+                        fillColor: '#1e40af',
+                        fillOpacity: 0.85,
                         strokeColor: '#1a1a1a',
-                        strokeWeight: 4,
-                        strokeOpacity: 0.3
-                    },
-                    zIndex: 2999
-                });
-
-                // Main center marker
-                new google.maps.Marker({
-                    position: position,
-                    map: map,
-                    icon: {
-                        path: google.maps.SymbolPath.CIRCLE,
-                        scale: 35,
-                        fillColor: centerColor,
-                        fillOpacity: 0.98,
-                        strokeColor: '#1a1a1a',
-                        strokeWeight: 4
+                        strokeWeight: 2
                     },
                     title: centerName,
-                    zIndex: 3000
+                    zIndex: 2500
                 });
             });
         }
